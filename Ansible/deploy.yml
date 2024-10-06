@@ -1,13 +1,13 @@
 - name: Desplegar la página web en Docker con Apache y MySQL
   hosts: aws_instance
-  become: yes
+  become: true
 
   tasks:
     - name: Instalar Docker
       ansible.builtin.apt:
         name: docker.io
         state: present
-        update_cache: yes
+        update_cache: true
 
     - name: Instalar Docker Compose
       ansible.builtin.apt:
