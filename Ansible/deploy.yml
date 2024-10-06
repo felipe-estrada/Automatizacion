@@ -10,9 +10,10 @@
         update_cache: true
 
     - name: Instalar Docker Compose
-      ansible.builtin.apt:
-        name: docker-compose
-        state: present
+      ansible.builtin.get_url:
+        url: "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)"
+        dest: /usr/local/bin/docker-compose
+        mode: '0755'
 
     - name: Iniciar y habilitar Docker
       ansible.builtin.service:
@@ -27,6 +28,14 @@
         owner: ubuntu
         group: ubuntu
         mode: '0755'
+
+    - name: Clonar el repositorio de GitHub
+      ansible.builtin.git:
+        repo: 'https://github.com/felipe-estrada/Automatizacion.git'  
+        dest: /home/ubuntu/docker-website/University
+        owner: ubuntu
+        group: ubuntu
+        version: main  # Cambia esto si necesitas otra rama
 
     - name: Crear archivo docker-compose.yml
       ansible.builtin.copy:
@@ -57,6 +66,11 @@
               volumes:
                 - db_data:/var/lib/mysql
                 - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+              healthcheck:
+                test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+                interval: 10s
+                timeout: 5s
+                retries: 3
           volumes:
             db_data:
               driver: local
@@ -75,15 +89,6 @@
         group: ubuntu
         mode: '0644'
 
-    - name: Copiar los archivos de la página web
-      ansible.builtin.copy:
-        src: /home/admon/Automatizacion/Ansible/University
-        dest: /home/ubuntu/docker-website/University
-        owner: ubuntu
-        group: ubuntu
-        mode: '0755'
-        remote_src: no
-
     - name: Copiar el archivo init.sql
       ansible.builtin.copy:
         src: /home/admon/Automatizacion/Ansible/init.sql
@@ -98,7 +103,7 @@
         project_src: /home/ubuntu/docker-website
         state: present
       register: docker_compose_status
-      ignore_errors: true
+      ignore_errors: yes
 
     - name: Iniciar los servicios con Docker Compose si no están en ejecución
       ansible.builtin.docker_compose:
