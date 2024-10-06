@@ -1,0 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Alatsi&display=swap');
+
+body{
+    font-family: 'Alatsi', sans-serif;
+    background: linear-gradient(90deg, rgba(89,185,168,1) 0%, rgba(165,166,233,1) 50%, rgba(97,211,222,1) 100%);
+    margin: 0%;
+    padding: 0%;
+    box-sizing: border-box;
+}
+.Carreras{
+    margin: 5%;
+}
+.Carreras h3{
+    text-align: center;
+    margin-top: 10%;
+}
+.Carreras p{
+    text-align: right;
+    margin-top: 50px;
+}

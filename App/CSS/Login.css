@@ -1,0 +1,55 @@
+/* Fondo general */
+body {
+    background: linear-gradient(90deg, rgba(89, 185, 168, 1) 0%, rgba(165, 166, 233, 1) 50%, rgba(97, 211, 222, 1) 100%);
+
+}
+
+/* Estilo del formulario de login */
+.login {
+    background: #17c0eb;
+    text-align: center;
+    margin: 180px auto; /* Centra el formulario horizontalmente */
+    width: 400px;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Añade una sombra */
+}
+
+/* Imagen del logo */
+.login img {
+    margin-bottom: 15px;
+}
+
+/* Espaciado en los elementos */
+.login input {
+    margin-bottom: 10px;
+}
+
+/* Estilo del botón */
+.login button {
+    background-color: #ffffff;
+    color: #17c0eb;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.login button:hover {
+    background-color: #17c0eb;
+    color: #ffffff;
+}
+
+/* Estilo para los enlaces en la parte inferior */
+#registro {
+    padding-top: 10px;
+}
+
+#registro a {
+    color: black;
+    text-decoration: none;
+}
+
+#registro a:hover {
+    text-decoration: underline;
+}

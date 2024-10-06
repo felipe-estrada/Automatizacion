@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Alatsi&display=swap');
+
+body{
+    font-family: 'Alatsi', sans-serif;
+    background: linear-gradient(90deg, rgba(89,185,168,1) 0%, rgba(165,166,233,1) 50%, rgba(97,211,222,1) 100%);
+    margin: 0%;
+    padding: 0%;
+    box-sizing: border-box;
+}
+
+.titulo{
+    text-align: center;
+    margin-top: 8%;
+    background: linear-gradient(90deg, rgba(141,155,255,1) 0%, rgba(110,125,255,1) 51%, rgba(43,184,213,1) 100%);
+    margin-left: 35%;
+    margin-right: 35%;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+/*Plataformas y servicios*/
+.serv{
+    text-align: center;
+    margin: 30px;
+    margin-left: auto;
+}
+.serv img{
+    margin-top: 30%;
+}
+.serv h5{
+    margin-top: 30px;
+}
+.serv a{
+    text-decoration: none;
+    color: black;
+}
+/*Plataformas y servicios*/
+
+/*Redes sociales*/
+.noticias{
+    text-align: center;
+    margin-top: 10%;
+    margin-bottom: 3%;
+}
+.iconos a{
+    text-decoration: none;
+    color: black;
+}
+.iconos{
+    background: linear-gradient(90deg, rgba(141,155,255,1) 0%, rgba(110,125,255,1) 51%, rgba(43,184,213,1) 100%);
+    margin: 5px;
+    margin-bottom: 50px;
+    margin-left: 25px;
+    padding-right: 30%;
+    border-radius: 20px;
+    display: flex;
+}
+.seguidores{
+    text-align: justify;
+    margin-top: 10px;
+    margin-left: 20px;
+}
+
+
