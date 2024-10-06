@@ -94,14 +94,14 @@
         remote_src: no
 
     - name: Comprobar si Docker Compose está en ejecución
-      ansible.builtin.command: docker-compose ps
-      args:
-        chdir: /home/ubuntu/docker-website
+      ansible.builtin.docker_compose:
+        project_src: /home/ubuntu/docker-website
+        state: present
       register: docker_compose_status
       ignore_errors: true
 
     - name: Iniciar los servicios con Docker Compose si no están en ejecución
-      ansible.builtin.command: docker-compose up -d --build
-      args:
-        chdir: /home/ubuntu/docker-website
-      when: docker_compose_status.rc != 0
+      ansible.builtin.docker_compose:
+        project_src: /home/ubuntu/docker-website
+        state: present
+      when: docker_compose_status.changed
