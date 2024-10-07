@@ -11,7 +11,7 @@
 
     - name: Instalar Docker Compose
       ansible.builtin.get_url:
-        url: "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)"
+        url: "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep -Po '"tag_name": "\K[^"]*')/docker-compose-$(uname -s)-$(uname -m)"
         dest: /usr/local/bin/docker-compose
         mode: '0755'
 
@@ -31,11 +31,9 @@
 
     - name: Clonar el repositorio de GitHub
       ansible.builtin.git:
-        repo: 'https://github.com/felipe-estrada/Automatizacion.git'  
+        repo: 'https://github.com/felipe-estrada/Automatizacion.git'
         dest: /home/ubuntu/docker-website/University
-        owner: ubuntu
-        group: ubuntu
-        version: main  # Cambia esto si necesitas otra rama
+        version: main
 
     - name: Crear archivo docker-compose.yml
       ansible.builtin.copy:
@@ -98,15 +96,7 @@
         mode: '0644'
         remote_src: no
 
-    - name: Comprobar si Docker Compose está en ejecución
-      ansible.builtin.docker_compose:
+    - name: Iniciar los servicios con Docker Compose
+      community.docker.docker_compose:
         project_src: /home/ubuntu/docker-website
         state: present
-      register: docker_compose_status
-      ignore_errors: yes
-
-    - name: Iniciar los servicios con Docker Compose si no están en ejecución
-      ansible.builtin.docker_compose:
-        project_src: /home/ubuntu/docker-website
-        state: present
-      when: docker_compose_status.changed
