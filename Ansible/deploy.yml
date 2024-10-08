@@ -1,56 +1,51 @@
 - name: Desplegar la página web en Docker con Apache y MySQL
-  hosts: aws_instance  # Se mantiene el nombre del grupo de hosts
-  become: yes
+  hosts: aws_instance
+  become: true
 
   tasks:
     - name: Instalar Docker
-      apt:
+      ansible.builtin.apt:
         name: docker.io
         state: present
-        update_cache: yes
+        update_cache: true
+
+    - name: Instalar Docker Compose
+      ansible.builtin.get_url:
+        url: "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep -Po '"tag_name": "\K[^"]*')/docker-compose-$(uname -s)-$(uname -m)"
+        dest: /usr/local/bin/docker-compose
+        mode: '0755'
 
     - name: Iniciar y habilitar Docker
-      service:
+      ansible.builtin.service:
         name: docker
         state: started
         enabled: true
 
     - name: Crear el directorio para Docker Compose
-      file:
-        path: /home/ubuntu/docker-website  # Directorio donde se crearán los archivos
+      ansible.builtin.file:
+        path: /home/ubuntu/docker-website
         state: directory
         owner: ubuntu
         group: ubuntu
         mode: '0755'
 
-    - name: Obtener la versión más reciente de Docker Compose
-      shell: |
-        curl -s https://api.github.com/repos/docker/compose/releases/latest | 
-        grep -Po '"tag_name": "\K[^"]*'
-      register: compose_version
-
-    - name: Descargar Docker Compose
-      shell: |
-        curl -L "https://github.com/docker/compose/releases/download/{{ compose_version.stdout }}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-      args:
-        executable: /bin/bash
-
-    - name: Dar permisos de ejecución a Docker Compose
-      file:
-        path: /usr/local/bin/docker-compose
-        mode: '0755'
+    - name: Clonar el repositorio de GitHub
+      ansible.builtin.git:
+        repo: 'https://github.com/felipe-estrada/Automatizacion.git'
+        dest: /home/ubuntu/docker-website/University
+        version: main
 
     - name: Crear archivo docker-compose.yml
-      copy:
+      ansible.builtin.copy:
         dest: /home/ubuntu/docker-website/docker-compose.yml
         content: |
           version: '3'
           services:
             web:
-              build: .  # Construir la imagen usando el Dockerfile que se creará
+              build: .
               container_name: php_apache_server
               volumes:
-                - ./University:/var/www/html/  # Ruta correcta para PHP
+                - ./University:/var/www/html/
               ports:
                 - "8080:80"
               depends_on:
@@ -60,15 +55,20 @@
               container_name: mysql_db
               restart: always
               environment:
-                MYSQL_ROOT_PASSWORD: rootpassword   # Cambia este valor
-                MYSQL_DATABASE: mydatabase        # Nombre de la base de datos
-                MYSQL_USER: myuser          # Usuario de la base de datos
-                MYSQL_PASSWORD: mypassword       # Contraseña del usuario
+                MYSQL_ROOT_PASSWORD: rootpassword
+                MYSQL_DATABASE: mydatabase
+                MYSQL_USER: myuser
+                MYSQL_PASSWORD: mypassword
               ports:
                 - "3306:3306"
               volumes:
                 - db_data:/var/lib/mysql
-                - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # Montar el script de inicialización
+                - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+              healthcheck:
+                test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+                interval: 10s
+                timeout: 5s
+                retries: 3
           volumes:
             db_data:
               driver: local
@@ -77,33 +77,19 @@
         mode: '0644'
 
     - name: Crear el Dockerfile
-      copy:
-        dest: /home/ubuntu/docker-website/Dockerfile  # Ruta donde se creará el Dockerfile
+      ansible.builtin.copy:
+        dest: /home/ubuntu/docker-website/Dockerfile
         content: |
-          # Utiliza la imagen base de PHP con Apache
           FROM php:8.1-apache
-
-          # Instala la extensión mysqli
           RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
-
-          # Habilita los módulos necesarios de Apache
           RUN a2enmod rewrite
         owner: ubuntu
         group: ubuntu
         mode: '0644'
 
-    - name: Copiar los archivos de la página web
-      copy:
-        src: /home/admon/Automatizacion/Ansible/University  # Cambia esto si tu ruta local es diferente
-        dest: /home/ubuntu/docker-website/University
-        owner: ubuntu
-        group: ubuntu
-        mode: '0755'
-        remote_src: no
-
     - name: Copiar el archivo init.sql
-      copy:
-        src: /home/admon/Automatizacion/Ansible/init.sql  # Cambia esto si tu ruta local es diferente
+      ansible.builtin.copy:
+        src: /home/admon/Automatizacion/Ansible/init.sql
         dest: /home/ubuntu/docker-website/init.sql
         owner: ubuntu
         group: ubuntu
@@ -111,6 +97,6 @@
         remote_src: no
 
     - name: Iniciar los servicios con Docker Compose
-      command: docker-compose up -d --build  # Incluye --build para asegurar que se construya la imagen usando el Dockerfile
-      args:
-        chdir: /home/ubuntu/docker-website
+      community.docker.docker_compose:
+        project_src: /home/ubuntu/docker-website
+        state: present
