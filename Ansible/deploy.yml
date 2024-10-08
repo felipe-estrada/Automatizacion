@@ -9,12 +9,6 @@
         state: present
         update_cache: true
 
-    - name: Instalar Docker Compose
-      ansible.builtin.get_url:
-        url: "https://github.com/docker/compose/releases/download/$(curl -s https://api.github.com/repos/docker/compose/releases/latest | grep -Po '"tag_name": "\K[^"]*')/docker-compose-$(uname -s)-$(uname -m)"
-        dest: /usr/local/bin/docker-compose
-        mode: '0755'
-
     - name: Iniciar y habilitar Docker
       ansible.builtin.service:
         name: docker
@@ -27,6 +21,17 @@
         state: directory
         owner: ubuntu
         group: ubuntu
+        mode: '0755'
+
+    - name: Obtener la última versión de Docker Compose
+      command: >
+        curl -s https://api.github.com/repos/docker/compose/releases/latest | grep -Po '"tag_name": "\K[^"]*'
+      register: compose_version
+
+    - name: Descargar Docker Compose
+      ansible.builtin.get_url:
+        url: "https://github.com/docker/compose/releases/download/{{ compose_version.stdout }}/docker-compose-{{ ansible_os_family | lower }}-{{ ansible_architecture }}"
+        dest: /usr/local/bin/docker-compose
         mode: '0755'
 
     - name: Clonar el repositorio de GitHub
