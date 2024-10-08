@@ -1,5 +1,5 @@
 provider "aws" {
-  region = "us-west-2"  # Cambia esto a la región que prefieras
+  region = "us-west-2" 
 }
 
 # Crear VPC
@@ -26,7 +26,7 @@ resource "aws_route_table" "main_rt" {
 resource "aws_subnet" "main" {
   vpc_id     = aws_vpc.main.id
   cidr_block = "10.0.1.0/24"
-  map_public_ip_on_launch = true  # Esto habilita la asignación de IP pública
+  map_public_ip_on_launch = true  # IP pública
 }
 
 # Asociar la tabla de enrutamiento a la subred
@@ -81,9 +81,9 @@ resource "aws_network_interface" "app_nic" {
 
 # Crear instancia EC2
 resource "aws_instance" "app_server" {
-  ami           = "ami-0075013580f6322a1"  # Ubuntu 18.04 LTS para us-east-1, cambia según tu región
-  instance_type = "t2.micro"               # Cambia el tamaño según tu necesidad
-  key_name      = "Ansible"                # Asegúrate de crear y usar tu propio par de claves
+  ami           = "ami-0075013580f6322a1"  # Ubuntu 18.04 LTS 
+  instance_type = "t2.micro"               # Instancia
+  key_name      = "Ansible"                # Clave
 
   network_interface {
     network_interface_id = aws_network_interface.app_nic.id
@@ -95,6 +95,6 @@ resource "aws_instance" "app_server" {
   }
 
   tags = {
-    Name = "MyAWSVM"
+    Name = "Pagina web"
   }
 }
