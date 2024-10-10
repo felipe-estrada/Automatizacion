@@ -91,7 +91,7 @@
 
     - name: Copiar el archivo init.sql
       copy:
-        src: /home/admon/Automatizacion/Ansible/init.sql  # Cambia esto si tu ruta local es diferente
+        src: /home/admon/Documents/Validacion/Automatizacion/Ansible/init.sql  # Cambia esto si tu ruta local es diferente
         dest: /home/ubuntu/docker-website/init.sql
         owner: ubuntu
         group: ubuntu
