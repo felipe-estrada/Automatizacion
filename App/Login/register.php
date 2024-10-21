@@ -1,9 +1,9 @@
 <?php
 // Configuración de la conexión a la base de datos
-$servername = "db";  // Cambiado a 'db', que es el nombre del servicio en docker-compose
-$username = "myuser"; // Usuario de MySQL definido en docker-compose
-$password = "mypassword"; // Contraseña de MySQL definida en docker-compose
-$dbname = "mydatabase";  // Nombre de la base de datos definida en docker-compose
+$servername = "db";
+$username = "myuser";
+$password = "mypassword";
+$dbname = "mydatabase";
 
 // Crear la conexión
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -15,8 +15,8 @@ if ($conn->connect_error) {
 
 // Verificar si el formulario se ha enviado
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nombre = $_POST['nombre'];
-    $email = $_POST['email'];
+    $nombre = trim($_POST['nombre']);
+    $email = trim($_POST['email']);
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
 
@@ -26,24 +26,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit;
     }
 
-    // Verificar si el correo electrónico ya está registrado
-    $sql = "SELECT * FROM usuarios WHERE email='$email'";
-    $result = $conn->query($sql);
+    // Verificar si el correo electrónico ya está registrado utilizando sentencias preparadas
+    $stmt = $conn->prepare("SELECT * FROM usuarios WHERE email=?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $stmt->store_result();
 
-    if ($result->num_rows > 0) {
+    if ($stmt->num_rows > 0) {
         echo "El correo electrónico ya está registrado.";
     } else {
-        // Insertar el nuevo usuario en la base de datos sin cifrar la contraseña
-        $sql = "INSERT INTO usuarios (usuario, email, password) VALUES ('$nombre', '$email', '$password')";
+        // Cifrar la contraseña antes de insertarla en la base de datos
+        $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
-        if ($conn->query($sql) === TRUE) {
+        // Insertar el nuevo usuario en la base de datos usando sentencias preparadas
+        $stmt = $conn->prepare("INSERT INTO usuarios (usuario, email, password) VALUES (?, ?, ?)");
+        $stmt->bind_param("sss", $nombre, $email, $password_hash);
+
+        if ($stmt->execute()) {
             // Redirigir al login
-            header("Location: /University/Login/Login.html");
+            header("Location: /Login/Login.html");
             exit();
         } else {
             echo "Error al registrar el usuario: " . $conn->error;
         }
     }
+
+    // Cerrar el statement
+    $stmt->close();
 }
 
 // Cerrar la conexión
