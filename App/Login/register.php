@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($stmt->execute()) {
             // Redirigir al login
-            header("Location: /Login/Login.html");
+            header("Location: /App/Login/Login.html");
             exit();
         } else {
             echo "Error al registrar el usuario: " . $conn->error;

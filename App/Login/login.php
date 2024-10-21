@@ -36,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['email'] = $email; // Guardar el correo en la sesión
 
             // Redirigir a la página principal
-            header("Location: /HTML/Index.html");
+            header("Location: /App/HTML/Index.html");
             exit();
         } else {
             echo "Correo electrónico o contraseña incorrectos.";
