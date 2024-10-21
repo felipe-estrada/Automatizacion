@@ -8,6 +8,9 @@ CREATE TABLE IF NOT EXISTS usuarios (
     usuario VARCHAR(50) NOT NULL UNIQUE,  -- Aquí está 'usuario'
     password VARCHAR(255) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
+    mfa_code VARCHAR(10),  -- Agregada la columna para el código MFA
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+
 
