@@ -7,6 +7,11 @@ $username = "myuser";
 $password = "mypassword";
 $dbname = "mydatabase";
 
+// Incluir PHPMailer
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+require 'vendor/autoload.php'; // Asegúrate de tener instalado PHPMailer vía composer
+
 // Crear la conexión
 $conn = new mysqli($servername, $username, $password, $dbname);
 
@@ -32,12 +37,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Verificar la contraseña cifrada
         if (password_verify($password, $stored_password_hash)) {
-            // Inicio de sesión exitoso
+            // Inicio de sesión exitoso, ahora generamos el código MFA
             $_SESSION['email'] = $email; // Guardar el correo en la sesión
 
-            // Redirigir a la página principal
-            header("Location: /App/HTML/Index.html");
-            exit();
+            // Generar código MFA
+            $mfa_code = random_int(100000, 999999);
+
+            // Guardar el código en la base de datos (o en la sesión si prefieres)
+            $stmt = $conn->prepare("UPDATE usuarios SET mfa_code = ? WHERE email = ?");
+            $stmt->bind_param("is", $mfa_code, $email);
+            $stmt->execute();
+
+            // Enviar el código por correo electrónico usando PHPMailer
+            $mail = new PHPMailer(true);
+
+            try {
+                // Configuración del servidor de correos (SMTP)
+                $mail->isSMTP();
+                $mail->Host = 'smtp.tu-dominio.com'; // Cambia esto por el servidor SMTP de tu proveedor
+                $mail->SMTPAuth = true;
+                $mail->Username = 'tu-email@tu-dominio.com'; // Cambia esto por tu correo
+                $mail->Password = 'tu-contraseña'; // Cambia esto por tu contraseña
+                $mail->SMTPSecure = 'tls'; 
+                $mail->Port = 587; // El puerto SMTP
+
+                // Configuración del email
+                $mail->setFrom('no-reply@tu-dominio.com', 'Tu Aplicación');
+                $mail->addAddress($email); // Dirección del usuario
+
+                // Contenido del correo
+                $mail->isHTML(true); 
+                $mail->Subject = 'Tu código de autenticación';
+                $mail->Body    = "Tu código de autenticación es: <b>$mfa_code</b>";
+
+                $mail->send();
+                // Redirigir al formulario para ingresar el código MFA
+                header("Location: /App/Login/MFA.php");
+                exit();
+
+            } catch (Exception $e) {
+                echo "No se pudo enviar el código de autenticación. Error: {$mail->ErrorInfo}";
+            }
+
         } else {
             echo "Correo electrónico o contraseña incorrectos.";
         }
