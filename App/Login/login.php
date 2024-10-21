@@ -10,7 +10,7 @@ $dbname = "mydatabase";
 // Incluir PHPMailer
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-require 'vendor/autoload.php'; // Asegúrate de tener instalado PHPMailer vía composer
+require __DIR__ . '/../vendor/autoload.php';
 
 // Crear la conexión
 $conn = new mysqli($servername, $username, $password, $dbname);
