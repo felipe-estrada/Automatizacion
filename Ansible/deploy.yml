@@ -3,6 +3,13 @@
   become: yes
 
   tasks:
+
+    - name: Actualizar los paquetes de Ubuntu
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+
     - name: Instalar Docker
       apt:
         name: docker.io
